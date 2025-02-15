@@ -7,12 +7,14 @@ import { Card } from "@/components/ui/card";
 import { X } from "lucide-react";
 import { AudioProcess } from "@/utils/AudioProcess";
 import MusicContainer from "../MusicContainer";
+import { findMusics } from "@/services/FindMusicService";
 
 const allowedFormats = [".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac"];
 
 export function FileUpload() {
     const [files, setFiles] = useState<File[]>([]);
     const [processedFiles, setProcessedFiles] = useState<File[]>([]);
+    const [recognizedSongs, setRecognizedSongs] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -25,6 +27,10 @@ export function FileUpload() {
         await AudioProcess(files).then((processedFiles) => {
             setProcessedFiles(processedFiles);
             setIsProcessing(false);
+        });
+
+        await findMusics(files).then((res) => {
+            setRecognizedSongs(res);
         });
     };
 
@@ -104,14 +110,18 @@ export function FileUpload() {
                 )}
             </Card>
             <Button
+                disabled={isProcessing}
                 className={`w-1/2 text-md ${
-                    isProcessing ? "cursor-not-allowed" : ""
+                    isProcessing ? "cursor-none bg-slate-400" : ""
                 }`}
                 onClick={processAudio}>
                 {isProcessing ? "Processing..." : "Process Audio"}
             </Button>
             <div className="w-full flex justify-center items-center">
-                <MusicContainer files={processedFiles} />
+                <MusicContainer
+                    files={processedFiles}
+                    names={recognizedSongs}
+                />
             </div>
         </div>
     );

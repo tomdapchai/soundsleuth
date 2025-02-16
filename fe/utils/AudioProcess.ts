@@ -101,7 +101,7 @@ export async function AudioProcess(files: File[]): Promise<File[]> {
         const processedData = await ffmpeg.readFile(outputName);
         const processedFile = new File(
             [processedData as Uint8Array],
-            fileName,
+            outputName,
             { type: "mp3" }
         );
 

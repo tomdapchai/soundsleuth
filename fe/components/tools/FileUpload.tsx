@@ -24,14 +24,19 @@ export function FileUpload() {
             return;
         }
         setIsProcessing(true);
-        await AudioProcess(files).then((processedFiles) => {
-            setProcessedFiles(processedFiles);
-            setIsProcessing(false);
-        });
-
-        await findMusics(files).then((res) => {
-            setRecognizedSongs(res);
-        });
+        await AudioProcess(files)
+            .then((res) => {
+                setProcessedFiles(res);
+                console.log("Processed files:", res);
+            })
+            .then(async () => {
+                await findMusics(processedFiles).then((res) => {
+                    setRecognizedSongs(res);
+                });
+            })
+            .finally(() => {
+                setIsProcessing(false);
+            });
     };
 
     const onDrop = useCallback(

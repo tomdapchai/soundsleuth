@@ -1,6 +1,7 @@
 import api from "@/api";
+import { PlaylistResult } from "@/types";
 
-export const findMusics = async (files: File[]): Promise<string[]> => {
+export const findMusics = async (files: File[]): Promise<PlaylistResult> => {
     const formData = new FormData();
     files.forEach((file) => {
         formData.append("files", file);
@@ -12,9 +13,12 @@ export const findMusics = async (files: File[]): Promise<string[]> => {
                 "Content-Type": "multipart/form-data",
             },
         });
-        return response.data.results;
+        return {
+            results: response.data.results,
+            playlist: response.data.playlist,
+        };
     } catch (error) {
         console.error("Recognition error:", error);
-        return files.map(() => "Recognition failed");
+        return { results: files.map(() => "Recognition failed"), playlist: "" };
     }
 };

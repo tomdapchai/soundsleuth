@@ -16,11 +16,18 @@ router = APIRouter()
 shazam = Shazam()
 search_url = "https://www.googleapis.com/youtube/v3/search"
 
+def get_final_url(initial_url):
+    response = requests.get(initial_url, allow_redirects=True)
+    
+    final_url = response.url
+    
+    return final_url
+
 
 @router.post("/find-music")
 async def find_music(files: List[UploadFile] = File(...)):
     print(f"Received {len(files)} files")
-    
+    ids = []
     # Semaphore to limit concurrent requests
     semaphore = asyncio.Semaphore(8)  # Allow only 2 concurrent requests
     
@@ -67,8 +74,8 @@ async def find_music(files: List[UploadFile] = File(...)):
                     return "No match found"
                 params = {
                     "part": "snippet",
-                    "q": name,
-                    "order": "viewCount",
+                    "q": name + "official",
+                    "order": "relevance",
                     "maxResults": 1,
                     "key": YOUTUBE_API_KEY
                 }
@@ -78,6 +85,8 @@ async def find_music(files: List[UploadFile] = File(...)):
                 link = f"https://www.youtube.com/watch?v={videoId}" if videoId is not None else None
                 # print(f"Found {name} at {link}")
                 print([name, link])
+                ids.append(videoId)
+                
                 return name
                 
             finally:
@@ -91,4 +100,10 @@ async def find_music(files: List[UploadFile] = File(...)):
 
     # Let the semaphore handle concurrency control
     results = await asyncio.gather(*tasks)
-    return {"results": results}
+
+    print("ids", ids)
+    playlist = "https://www.youtube.com/watch_videos?video_ids=" + ",".join(ids)
+    print(playlist)
+    final_playlist = get_final_url(playlist)
+    print(final_playlist)
+    return {"results": results, "playlist": final_playlist}

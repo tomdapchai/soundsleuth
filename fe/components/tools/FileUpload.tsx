@@ -8,13 +8,14 @@ import { X } from "lucide-react";
 import { AudioProcess } from "@/utils/AudioProcess";
 import MusicContainer from "../MusicContainer";
 import { findMusics } from "@/services/FindMusicService";
+import { PlaylistResult } from "@/types";
 
 const allowedFormats = [".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac"];
 
 export function FileUpload() {
     const [files, setFiles] = useState<File[]>([]);
     const [processedFiles, setProcessedFiles] = useState<File[]>([]);
-    const [recognizedSongs, setRecognizedSongs] = useState<string[]>([]);
+    const [recognizedSongs, setRecognizedSongs] = useState<PlaylistResult>();
     const [error, setError] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -125,8 +126,19 @@ export function FileUpload() {
             <div className="w-full flex justify-center items-center">
                 <MusicContainer
                     files={processedFiles}
-                    names={recognizedSongs}
+                    names={recognizedSongs?.results || []}
                 />
+            </div>
+            <div className="w-full flex justify-center items-center">
+                <div className="w-full flex justify-center items-center">
+                    <h1 className="font-bold text-lg">Playlist:</h1>
+                    <a
+                        href={recognizedSongs?.playlist}
+                        target="_blank"
+                        rel="noreferrer">
+                        {recognizedSongs?.playlist}
+                    </a>
+                </div>
             </div>
         </div>
     );

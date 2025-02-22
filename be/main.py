@@ -16,4 +16,5 @@ app.add_middleware(
 
 app.include_router(services_router, prefix="/services")
 print("Hello")
+print("World")
 

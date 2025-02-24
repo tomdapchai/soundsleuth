@@ -4,7 +4,7 @@ import asyncio
 import io
 import tempfile
 import os
-from database.db_config import redis_db
+from be.database.redis_config import redis_db
 import chromaprint
 
 def generate_fingerprint(content: bytes):

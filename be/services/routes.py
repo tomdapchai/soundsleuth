@@ -1,16 +1,12 @@
 from typing import List, Dict, Optional
 from fastapi import APIRouter, HTTPException, File
 from fastapi import UploadFile
-from pydantic import BaseModel
 import asyncio
 from shazamio import Shazam, exceptions
 import requests
 from dotenv import load_dotenv
 import os
 import logging
-import json
-import acoustid
-import redis
 from utils.fingerprint import generate_fingerprint, is_cached, get_cached, cache_song
 
 load_dotenv()
@@ -22,11 +18,8 @@ audd_url = "https://api.audd.io/"
 
 def get_final_url(initial_url):
     response = requests.get(initial_url, allow_redirects=True)
-    
     final_url = response.url
-    
     return final_url
-
 
 @router.post("/find-music")
 async def find_music(files: List[UploadFile] = File(...)):
@@ -121,19 +114,12 @@ async def find_music(files: List[UploadFile] = File(...)):
                 
             finally:
                 await file.close()
-                # Add a small delay after completing each file to further reduce load
                 await asyncio.sleep(2)
     
-    # Process files with some delay between starting each task
-    # Create all tasks at once
     tasks = [process_file(file) for file in files]
 
-    # Let the semaphore handle concurrency control
     results = await asyncio.gather(*tasks)
 
-    print("ids", ids)
     playlist = "https://www.youtube.com/watch_videos?video_ids=" + ",".join(ids)
-    print(playlist)
     final_playlist = get_final_url(playlist)
-    print(final_playlist)
     return {"results": results, "playlist": final_playlist}

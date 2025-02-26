@@ -1,5 +1,5 @@
 from typing import List, Dict, Optional
-from fastapi import APIRouter, HTTPException, File
+from fastapi import APIRouter, HTTPException, File, Header, Depends
 from fastapi import UploadFile
 import asyncio
 from shazamio import Shazam, exceptions
@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 import os
 import logging
 from utils.fingerprint import generate_fingerprint, is_cached, get_cached, cache_song
+from utils.auth import verify_jwt_token
+from typing_extensions import Annotated
 
 load_dotenv()
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
@@ -21,8 +23,13 @@ def get_final_url(initial_url):
     final_url = response.url
     return final_url
 
+
 @router.post("/find-music")
-async def find_music(files: List[UploadFile] = File(...)):
+async def find_music(
+    files: List[UploadFile] = File(...),
+    # verify the token using jwt
+    token: Annotated[str, Depends(verify_jwt_token)] = Header(None)
+):
     print(f"Received {len(files)} files")
     ids = []
     semaphore = asyncio.Semaphore(8)  # allow 8 concurrent requests

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from services.routes import router as services_router
 from verification.routes import router as verification_router
+from users.routes import router as users_router
 
 app = FastAPI()
 
@@ -17,5 +18,5 @@ app.add_middleware(
 
 app.include_router(services_router, prefix="/services")
 app.include_router(verification_router, prefix="/verification")
-
+app.include_router(users_router, prefix="/users")
 

@@ -45,6 +45,16 @@ class User(BaseModel):
 class UserInDB(User):
     hashed_password: str
 
+
+def verify_jwt_token(token: Annotated[str, Depends(oauth2_scheme)]):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 def get_user(db, username: str):
     if username in db:
         user_dict = db[username]

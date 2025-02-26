@@ -4,7 +4,7 @@ from verification.routes import oauth2_scheme, fake_users_db
 from pymongo.mongo_client import MongoClient
 from typing_extensions import Annotated
 from pydantic import BaseModel
-from utils.auth import verify_jwt_token
+from verification.routes import verify_jwt_token
 
 from jwt.exceptions import InvalidTokenError
 
@@ -64,6 +64,6 @@ async def get_current_active_user(
 
 router = APIRouter()
 
-@router.get("/users/me")
+@router.get("/me")
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user

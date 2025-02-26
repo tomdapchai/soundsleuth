@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from utils.fingerprint import generate_fingerprint, is_cached, get_cached, cache_song
-from utils.auth import verify_jwt_token
+from verification.routes import verify_jwt_token
 from typing_extensions import Annotated
 
 load_dotenv()

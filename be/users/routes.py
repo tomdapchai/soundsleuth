@@ -1,69 +1,47 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from database.mongo_config import mongo
-from verification.routes import oauth2_scheme, fake_users_db
-from pymongo.mongo_client import MongoClient
+from fastapi import APIRouter, HTTPException, Depends, status
 from typing_extensions import Annotated
+from database.mongo_config import mongo
 from pydantic import BaseModel
-from verification.routes import verify_jwt_token
+from auth.users import get_current_active_user, User
+from auth.password import get_password_hash
 
-from jwt.exceptions import InvalidTokenError
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-class User(BaseModel):
+class UserCreate(BaseModel):
     username: str
-    email: str | None = None
+    email: str
     full_name: str | None = None
-    disabled: bool | None = None
-
-class UserInDB(User):
-    hashed_password: str
-
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-
-def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    credentails_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = verify_jwt_token(token)
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentails_exception
-        token_data = TokenData(username=username)
-    except InvalidTokenError:
-        raise credentails_exception
-    user = get_user(fake_users_db, username=token_data.username)
-    if user is None:
-        raise credentails_exception
-    return user
-
-async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)],
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
-
+    password: str
 
 router = APIRouter()
 
-@router.get("/me")
-async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
+@router.get("/me", response_model=User)
+async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
     return current_user
+
+@router.post("/register", response_model=User)
+async def register_user(user_data: UserCreate):
+    # Check if username exists
+    if mongo["users"].find_one({"username": user_data.username}):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+    
+    # Create new user with hashed password
+    user_dict = user_data.dict()
+    hashed_password = get_password_hash(user_dict.pop("password"))
+    
+    new_user = {
+        **user_dict,
+        "hashed_password": hashed_password,
+        "disabled": False
+    }
+    
+    result = mongo["users"].insert_one(new_user)
+    
+    if not result.acknowledged:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to register user"
+        )
+    
+    return User(**new_user)

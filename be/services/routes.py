@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from utils.fingerprint import generate_fingerprint, is_cached, get_cached, cache_song
-from verification.routes import verify_jwt_token
+from auth.jwt import verify_jwt_token
 from typing_extensions import Annotated
 
 load_dotenv()
@@ -27,7 +27,6 @@ def get_final_url(initial_url):
 @router.post("/find-music")
 async def find_music(
     files: List[UploadFile] = File(...),
-    # verify the token using jwt
     token: Annotated[str, Depends(verify_jwt_token)] = Header(None)
 ):
     print(f"Received {len(files)} files")

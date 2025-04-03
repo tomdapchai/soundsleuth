@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
     Card,
     CardContent,
@@ -30,14 +30,12 @@ import { useToast } from "@/hooks/use-toast";
 const SignIn = () => {
     const { isAuthenticated, login } = useAuth();
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { toast } = useToast();
     useEffect(() => {
         if (isAuthenticated) {
-            const callbackUrl = searchParams.get("callbackUrl");
-            router.replace(callbackUrl || "/");
+            router.replace("/");
         }
-    }, [isAuthenticated, router, searchParams]);
+    }, [isAuthenticated, router]);
 
     const form = useForm<z.infer<typeof SignInSchema>>({
         resolver: zodResolver(SignInSchema),

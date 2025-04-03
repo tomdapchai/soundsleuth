@@ -1,5 +1,7 @@
+"use server";
 import api from "@/api";
 import { PlaylistResult } from "@/types";
+import { cookies } from "next/headers";
 
 export const findMusics = async (files: File[]): Promise<PlaylistResult> => {
     const formData = new FormData();
@@ -11,6 +13,9 @@ export const findMusics = async (files: File[]): Promise<PlaylistResult> => {
         const response = await api.post("/services/find-music", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${
+                    (await cookies()).get("token")?.value
+                }`,
             },
         });
         return {

@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -29,10 +30,12 @@ export default function RootLayout({
         <html lang="en" className="no-scrollbar">
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen w-screen flex flex-col`}>
-                <Header />
-                {children}
-                <Footer />
-                <Toaster />
+                <AuthProvider>
+                    <Header />
+                    {children}
+                    <Footer />
+                    <Toaster />
+                </AuthProvider>
             </body>
         </html>
     );

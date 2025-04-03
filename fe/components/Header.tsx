@@ -23,7 +23,9 @@ const Header = () => {
                 </li>
             </ul>
             <div className="flex justify-between items-center space-x-2">
-                <Button>Sign in</Button>
+                <Button>
+                    <Link href="/sign-in">Sign in</Link>
+                </Button>
                 <Button>Sign up</Button>
             </div>
         </header>

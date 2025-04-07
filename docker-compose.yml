@@ -1,0 +1,14 @@
+services:
+    backend:
+        build: ./be
+        env_file:
+            - ./be/.env
+        networks:
+            - app-network
+        ports:
+            - "8000:8000"
+
+# Define a custom network (better for container-to-container communication)
+networks:
+    app-network:
+        driver: bridge

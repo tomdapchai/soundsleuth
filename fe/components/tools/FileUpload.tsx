@@ -9,6 +9,7 @@ import { AudioProcess } from "@/utils/AudioProcess";
 import MusicContainer from "../MusicContainer";
 import { findMusics } from "@/services/FindMusicService";
 import { PlaylistResult } from "@/types";
+import { set } from "zod";
 
 const allowedFormats = [".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac"];
 
@@ -31,12 +32,13 @@ export function FileUpload() {
                 console.log("Processed files:", res);
             })
             .then(async () => {
-                await findMusics(processedFiles).then((res) => {
-                    setRecognizedSongs(res);
-                });
-            })
-            .finally(() => {
-                setIsProcessing(false);
+                await findMusics(processedFiles)
+                    .then((res) => {
+                        setRecognizedSongs(res);
+                    })
+                    .then(() => {
+                        setIsProcessing(false);
+                    });
             });
     };
 

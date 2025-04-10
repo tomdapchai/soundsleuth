@@ -136,12 +136,16 @@ export function FileUpload() {
             </div>
             <div className="w-full flex justify-center items-center">
                 <div className="w-full flex justify-center items-center">
-                    <h1 className="font-bold text-lg">Playlist:</h1>
+                    <h1 className="font-bold text-lg"></h1>
                     <a
                         href={recognizedSongs?.playlist}
                         target="_blank"
                         rel="noreferrer">
-                        {recognizedSongs?.playlist}
+                        <Button
+                            className="ml-2 text-lg font-bold text-green-400"
+                            variant="link">
+                            Open Playlist
+                        </Button>
                     </a>
                 </div>
             </div>

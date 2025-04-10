@@ -29,7 +29,7 @@ export default function RootLayout({
     return (
         <html lang="en" className="no-scrollbar">
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen w-screen flex flex-col`}>
+                className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen w-screen flex flex-col justify-between`}>
                 <AuthProvider>
                     <Header />
                     {children}

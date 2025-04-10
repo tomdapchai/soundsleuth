@@ -26,20 +26,23 @@ export function FileUpload() {
             return;
         }
         setIsProcessing(true);
-        await AudioProcess(files)
-            .then((res) => {
-                setProcessedFiles(res);
-                console.log("Processed files:", res);
-            })
-            .then(async () => {
-                await findMusics(processedFiles)
-                    .then((res) => {
-                        setRecognizedSongs(res);
-                    })
-                    .then(() => {
-                        setIsProcessing(false);
-                    });
-            });
+        setError(null);
+
+        try {
+            // Process the audio files
+            const processed = await AudioProcess(files);
+            setProcessedFiles(processed);
+            console.log("Processed files:", processed);
+
+            // Use the processed files directly instead of from state
+            const results = await findMusics(processed);
+            setRecognizedSongs(results);
+        } catch (error) {
+            console.error("Error during processing:", error);
+            setError("An error occurred while processing. Please try again.");
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const onDrop = useCallback(
